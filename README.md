@@ -1,121 +1,150 @@
 # 🎧 metadata-audio.sh
 
-Skrip Bash otomatis untuk **membersihkan metadata lama**, **menambahkan cover art eksternal**, dan **menulis ulang tag audio secara rapi**.  
-Didesain agar file musik kamu tampil sempurna di semua pemutar seperti *VLC, iTunes, foobar2000, dan Android Music Player.*
+Skrip simpel buat **bersihin metadata lama** dan **nambahin cover art otomatis** ke file musik kamu.  
+Cocok banget buat yang pengen file audionya tampil rapi dan profesional di semua pemutar 🎶
 
 ---
 
-## 📜 Deskripsi Umum
+## 💡 Apa yang Skrip Ini Lakuin
 
-`metadata-audio.sh` dibuat untuk mempermudah proses *re-tagging* audio dengan hasil bersih dan konsisten.  
-Skrip ini bekerja otomatis untuk:
-- Menghapus semua tag lama tanpa sisa.
-- Menulis ulang metadata baru (artist, title, album, genre, comment).
-- Menambahkan cover art eksternal (jika tersedia).
-- Menyimpan hasil konversi di folder `render/` agar file asli tetap aman.
-- Mencatat proses ke file `process.log`.
+- Hapus semua metadata lama (bersih tanpa sisa).
+- Tambahin cover art eksternal (kalau ada file `cover.jpg/png/webp`).
+- Tulis ulang tag: Artist, Judul, Album, Genre, Comment.
+- Simpen hasilnya ke folder `render/` biar file asli tetap aman.
+- Catet proses ke `process.log`.
 
 ---
 
-## ⚙️ Alur Kerja
+## ⚙️ Cara Pakai di **PC / Laptop (Linux)**
 
-1. **Inisialisasi**
-   - Membuat folder `render/`.
-   - Menghapus isi log lama dan membuat `process.log` baru.
+1. Pastikan udah install **ffmpeg** dan **ffprobe**:
+   ```bash
+   sudo apt install ffmpeg
+   ```
 
-2. **Pengecekan Cover Art**
-   - Mencari file `cover.jpg`, `cover.png`, `cover.webp`, atau `cover.jpeg`.
-   - Jika tidak ditemukan, menampilkan peringatan dan tetap melanjutkan tanpa cover.
+2. Taruh skrip `metadata-audio.sh` di folder yang berisi file musik kamu.
 
-3. **Pemrosesan File Audio**
-   - Mendukung format: `.mp3`, `.m4a`, `.flac`, `.wav`, `.ogg`
-   - Membaca metadata lama menggunakan `ffprobe`.
-   - Jika nama file berbentuk `Artis - Judul`, akan otomatis dipisah menjadi tag.
-   - Prioritas metadata:
-     ```
-     Argumen CLI > Metadata lama > Nama file
-     ```
-   - Menentukan nilai default untuk album: `Japan`.
+3. (Opsional) Tambahin file gambar cover:
+   ```
+   cover.jpg / cover.png / cover.webp
+   ```
 
-4. **Proses Encode Ulang**
-   - Jika cover eksternal ada:
-     ```bash
-     ffmpeg -i input -i cover -map 0:a -map 1 ...
-     ```
-   - Jika tidak ada cover eksternal:
-     ```bash
-     ffmpeg -i input -map_metadata -1 ...
-     ```
-   - Hasil file tersimpan di `render/`.
+4. Jalankan skripnya:
+   ```bash
+   bash metadata-audio.sh [ARTIST] [TITLE] [ALBUM]
+   ```
 
-5. **Output**
-   - File hasil akan muncul di `render/`.
-   - Status sukses/gagal dicatat di `process.log`.
+   Contoh:
+   ```bash
+   bash metadata-audio.sh "YOASOBI" "Idol" "Japan Hits"
+   ```
+
+   Kalau kamu nggak isi argumen, skrip bakal otomatis baca dari metadata lama,  
+   atau dari nama file misalnya `YOASOBI - Idol.mp3`.
 
 ---
 
-## 🧩 Fitur Utama
+## 📱 Cara Pakai di **Android (Termux)**
 
-✅ Membersihkan metadata lama sepenuhnya  
-✅ Mendukung banyak format audio  
-✅ Tidak menimpa file asli  
-✅ Parsing otomatis dari nama file  
-✅ Log lengkap untuk setiap proses  
-✅ Otomatis mendeteksi dan menanam cover art eksternal  
+> ⚠️ Langkah ini udah dites dan berjalan lancar di Android 13–14 (Termux terbaru).
+
+### 1. Instal Termux & ffmpeg
+Buka Termux lalu jalankan perintah ini:
+```bash
+pkg update && pkg upgrade -y
+pkg install ffmpeg -y
+```
+
+### 2. Buat folder kerja
+Misalnya di `~/musiccleaner`:
+```bash
+mkdir ~/musiccleaner
+cd ~/musiccleaner
+```
+
+### 3. Pindahin skrip dan file musik
+Salin `metadata-audio.sh` ke folder itu, lalu juga taruh file musik kamu di situ.
+Kamu bisa pakai aplikasi **CX File Explorer** atau **ZArchiver** buat pindahin file ke folder Termux.
+
+Contohnya:
+```
+~/musiccleaner/
+├── metadata-audio.sh
+├── cover.jpg
+├── YOASOBI - Idol.mp3
+```
+
+### 4. Kasih izin eksekusi skrip
+```bash
+chmod +x metadata-audio.sh
+```
+
+### 5. Jalankan!
+```bash
+bash metadata-audio.sh
+```
+Atau kalau mau isi manual:
+```bash
+bash metadata-audio.sh "YOASOBI" "Idol" "Japan Hits"
+```
+
+### 6. Hasilnya
+Cek folder `render/`:
+```bash
+ls render
+```
+Semua hasil ada di situ — file asli tetap aman 👍
 
 ---
 
-## 🧰 Tools yang Digunakan
-
-- **Bash**
-- **FFmpeg**
-- **FFprobe**
-- **Coreutils (ls, cut, xargs)**
-
----
-
-## 🏷️ Metadata Default
-
-| Tag | Nilai |
-|------|--------|
-| Artist | Berdasarkan argumen atau nama file |
-| Title | Berdasarkan argumen atau nama file |
-| Album | Japan |
-| Genre | Japan |
-| Comment | by MUNONS |
-| Cover | cover eksternal (jika tersedia) |
-
----
-
-## 📦 Struktur Output Folder
+## 📂 Struktur Folder
 
 ```
 📁 .
 ├── metadata-audio.sh
 ├── cover.jpg (opsional)
-├── song1.mp3
-├── song2.flac
+├── YOASOBI - Idol.mp3
 ├── process.log
 └── 📁 render/
-    ├── song1.mp3
-    └── song2.mp3
+    └── YOASOBI - Idol.mp3
 ```
 
 ---
 
-## 💡 Contoh Penggunaan
+## 🏷️ Tag Default
 
-Menambahkan metadata secara manual:
-```bash
-bash metadata-audio.sh "YOASOBI" "Idol" "Japan Hits"
-```
+| Tag | Nilai |
+|------|--------|
+| Album | Japan |
+| Genre | Japan |
+| Comment | by MUNONS |
 
-Tanpa argumen (otomatis ambil dari nama file atau metadata lama):
-```bash
-bash metadata-audio.sh
-```
+---
 
-Output terminal:
+## 🧰 Tools yang Dipakai
+
+- **Bash**
+- **FFmpeg**
+- **FFprobe**
+- (Android pakai Termux)
+
+---
+
+## 🧑‍💻 Info Skrip
+
+| Info | Detail |
+|------|--------|
+| Nama | metadata-audio.sh |
+| Versi | 1.4 |
+| Author | [MUNONS](https://github.com/munons) |
+| Dibuat | 10 Sep 2025 |
+| Update Terakhir | 16 Okt 2025 |
+| Lisensi | Free for personal use |
+
+---
+
+## 🧾 Contoh Output
+
 ```
 ✅ Pakai cover eksternal: cover.jpg
 🎧 Processing: YOASOBI - Idol.mp3
@@ -128,27 +157,14 @@ Output terminal:
 
 ---
 
-## 🧑‍💻 Informasi Teknis
+## 🧠 Tips Tambahan
 
-| Keterangan | Nilai |
-|-------------|--------|
-| **Script Name** | metadata-audio.sh |
-| **Version** | 1.0 |
-| **Author** | [MUNONS](https://github.com/munons) |
-| **Created** | 2025-09-10 |
-| **Updated** | 2025-10-16 |
-| **License** | Free for personal use |
-| **GitHub** | [https://github.com/munons](https://github.com/munons) |
+- Kalau cover nggak muncul → pastikan file `cover.jpg/png/webp` ada di folder yang sama.  
+- Kalau Termux error "permission denied" → coba `chmod +x metadata-audio.sh`.  
+- Semua file dikonversi ke `.mp3` (320kbps) biar bisa diputar di semua device.  
+- Genre dan Album default-nya “Japan”, bisa diganti lewat argumen.  
+- File asli aman — hasil baru disimpan di folder `render/`.
 
 ---
 
-## 🔧 Troubleshooting
-
-- **Cover tidak muncul:** pastikan file cover bernama `cover.jpg/png/webp` dan berada di folder yang sama.  
-- **FFmpeg error:** cek versi ffmpeg terbaru (`ffmpeg -version`).  
-- **File tidak diproses:** pastikan ekstensi file audio sesuai (mp3, m4a, flac, wav, ogg).  
-- **Output kosong:** periksa `process.log` untuk detail error.
-
----
-
-> 💬 *"Satu klik untuk audio yang rapi, bersih, dan tampil sempurna di semua pemutar musik."*
+> 🎶 “Satu klik di Termux, semua lagu kamu langsung rapi dan tampil keren di pemutar musik!”
